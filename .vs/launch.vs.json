@@ -1,0 +1,22 @@
+{
+  "version": "0.2.1",
+  "defaults": {},
+  "configurations": [
+    {
+      "type": "cppgdb",
+      "name": "ztb_bench - wszystkie bazy, 10 000",
+      "project": "CMakeLists.txt",
+      "projectTarget": "ztb_bench",
+      "debuggerConfiguration": "gdb",
+      "args": [ "--size", "10000" ]
+    },
+    {
+      "type": "cppgdb",
+      "name": "ztb_bench - tylko PostgreSQL, 10 000",
+      "project": "CMakeLists.txt",
+      "projectTarget": "ztb_bench",
+      "debuggerConfiguration": "gdb",
+      "args": [ "--size", "10000", "--db", "postgresql" ]
+    }
+  ]
+}

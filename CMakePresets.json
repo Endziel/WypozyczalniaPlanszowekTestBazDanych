@@ -1,0 +1,36 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {
+      "name": "wsl-base",
+      "hidden": true,
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/out/build/${presetName}",
+      "condition": { "type": "equals", "lhs": "${hostSystemName}", "rhs": "Linux" },
+      "vendor": {
+        "microsoft.com/VisualStudioSettings/CMake/1.0": {
+          "hostOS": [ "Linux" ]
+        },
+        "microsoft.com/VisualStudioRemoteSettings/CMake/1.0": {
+          "copySources": false
+        }
+      }
+    },
+    {
+      "name": "wsl-debug",
+      "displayName": "WSL Debug",
+      "inherits": "wsl-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    },
+    {
+      "name": "wsl-release",
+      "displayName": "WSL Release (do pomiarow)",
+      "inherits": "wsl-base",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Release" }
+    }
+  ],
+  "buildPresets": [
+    { "name": "wsl-debug", "configurePreset": "wsl-debug" },
+    { "name": "wsl-release", "configurePreset": "wsl-release" }
+  ]
+}

@@ -1,0 +1,55 @@
+name: ztb-planszowki
+
+services:
+  postgres:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: ztb
+      POSTGRES_PASSWORD: ztb
+      POSTGRES_DB: planszowki
+    ports: ["55432:5432"]          # inny port niz domyslny, zeby nie kolidowac z innymi projektami
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ztb -d planszowki"]
+      interval: 2s
+      retries: 30
+
+  mongo:
+    image: mongo:7.0
+    ports: ["27018:27017"]
+    volumes: [mongodata:/data/db]
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 2s
+      retries: 30
+
+  memgraph:
+    image: memgraph/memgraph:${MEMGRAPH_TAG:-latest}
+    ports: ["7688:7687"]
+    command: ["--log-level=WARNING", "--query-execution-timeout-sec=0"]
+    volumes: [mgdata:/var/lib/memgraph]
+
+  # Aplikacja testowa C++ (budowana w kontenerze - wszystkie biblioteki na miejscu)
+  app:
+    build: .
+    depends_on:
+      postgres: { condition: service_healthy }
+      mongo:    { condition: service_healthy }
+      memgraph: { condition: service_started }
+    environment:
+      PG_CONN: "host=postgres port=5432 dbname=planszowki user=ztb password=ztb"
+      MONGO_URI: "mongodb://mongo:27017"
+      MEMGRAPH_HOST: memgraph
+      MEMGRAPH_PORT: "7687"
+      SQLITE_PATH: /sqlite/planszowki.sqlite   # wolumen Dockera, nie dysk Windows (uczciwe porownanie I/O)
+      DATA_DIR: /data
+    volumes:
+      - ${DATA_DIR:-C:/Studia/Zaawansowane_bazy_danych}:/data:ro
+      - ./results:/app/results
+      - sqlitedata:/sqlite
+
+volumes:
+  sqlitedata:
+  pgdata:
+  mongodata:
+  mgdata:
